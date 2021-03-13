@@ -7,25 +7,29 @@ export async function getCars(params: Partial<GetParams>): Promise<GetResult<ICa
 export async function getCars(params: Partial<GetParams> | GetOneParams): Promise<GetResult<ICars> | GetOneResult<ICars>> {
     const db = await getDB();
 
-    const sql = select().from(select(
-        'v.ID as id',
-        'upper(v.RAMA) as rama',
-        'v.DKN as dkm',
-        'vm.NAME as mark_name',
-        'vmd.NAME as model_name',
-        'v.PRODUCE_YEAR as produce_year',
-        'MAX(VC.CLIENT_ID) as client_id'
-    ).from('VEHICLES v')
-        .join('VEHICLE_MARK vm', { 'vm.ID': 'v.MARK_ID' })
-        .join('VEHICLE_MODEL vmd', { 'vmd.ID': 'v.MODEL_ID' })
-        .leftJoin('VC', { 'VC.VEHICLE_ID': 'v.ID' })
-        .groupBy('v.ID'));
+    const sql = select(
+        'v.id as id',
+        'upper(v.rama) as rama',
+        'v.dkn as dkm',
+        'vm.name as mark_name',
+        'vmd.name as model_name',
+        'v.produce_year as produce_year',
+        'max(vc.client_id) as client_id'
+    ).from('vehicles v')
+        .join('vehicle_mark vm', { 'vm.ID': 'v.MARK_ID' })
+        .join('vehicle_model vmd', { 'vmd.ID': 'v.MODEL_ID' })
+        .leftJoin('vc', { 'vc.VEHICLE_ID': 'v.ID' })
+        .groupBy('v.ID');
 
-    let total = 0;
+    let total: number | undefined = 1376287;
     if (isOne(params)) {
-        sql.where({ 'id': params.id });
+        sql.where({ 'v.id': params.id });
     } else {
-        total = await prepareParams(params, sql, db);
+        if (params.ids) {
+            sql.where($in('v.id', ...params.ids));
+        } else {
+            /* total = */ await prepareParams(params, sql, db);
+        }
     }
 
     const { text, values } = sql.toParams();
@@ -48,7 +52,7 @@ export async function getPersons(params: Partial<GetParams>): Promise<GetResult<
 export async function getPersons(params: Partial<GetParams> | GetOneParams): Promise<GetResult<IPerson> | GetOneResult<IPerson>> {
     const db = await getDB();
 
-    const sql = select().from(select(
+    const sql = select(
         'c.ID as id',
         'c.CLIENT_NAME as client_name',
         'c.EGN as bulstat',
@@ -65,17 +69,21 @@ export async function getPersons(params: Partial<GetParams> | GetOneParams): Pro
         'c.VHOD as vhod',
         'c.APARTMENT as apartment',
         'c.FLOOR as floor',
-        'group_concat(VC.VEHICLE_ID) as vehicle_ids'
-    ).from('CLIENTS c')
-        .leftJoin('VC', { 'VC.CLIENT_ID': 'c.ID' })
+        'group_concat(vc.VEHICLE_ID) as vehicle_ids'
+    ).from('clients c')
+        .leftJoin('vc', { 'vc.CLIENT_ID': 'c.ID' })
         .where('c.CLIENT_TYPE', rawSql(1))
-        .groupBy('c.ID'));
+        .groupBy('c.ID');
 
-    let total = 0;
+    let total: number | undefined = 1030889;
     if (isOne(params)) {
-        sql.where({ 'id': params.id });
+        sql.where({ 'c.id': params.id });
     } else {
-        total = await prepareParams(params, sql, db);
+        if (params.ids) {
+            sql.where($in('c.id', ...params.ids));
+        } else {
+            /* total = */ await prepareParams(params, sql, db);
+        }
     }
 
     const { text, values } = sql.toParams();
@@ -98,7 +106,7 @@ export async function getCompanies(params: Partial<GetParams>): Promise<GetResul
 export async function getCompanies(params: Partial<GetParams> | GetOneParams): Promise<GetResult<ICompany> | GetOneResult<ICompany>> {
     const db = await getDB();
 
-    const sql = select().from(select(
+    const sql = select(
         'c.ID as id',
         'c.CLIENT_NAME as client_name',
         'c.EGN as bulstat',
@@ -115,17 +123,21 @@ export async function getCompanies(params: Partial<GetParams> | GetOneParams): P
         'c.VHOD as vhod',
         'c.APARTMENT as apartment',
         'c.FLOOR as floor',
-        'group_concat(VC.VEHICLE_ID) as vehicle_ids'
-    ).from('CLIENTS c')
-        .leftJoin('VC', { 'VC.CLIENT_ID': 'c.ID' })
+        'group_concat(vc.VEHICLE_ID) as vehicle_ids'
+    ).from('clients c')
+        .leftJoin('vc', { 'vc.CLIENT_ID': 'c.ID' })
         .where('c.CLIENT_TYPE', rawSql(2))
-        .groupBy('c.ID'));
+        .groupBy('c.ID');
 
-    let total = 0;
+    let total: number | undefined = 78689;
     if (isOne(params)) {
-        sql.where({ 'id': params.id });
+        sql.where({ 'c.id': params.id });
     } else {
-        total = await prepareParams(params, sql, db);
+        if (params.ids) {
+            sql.where($in('c.id', ...params.ids));
+        } else {
+            /* total = */ await prepareParams(params, sql, db);
+        }
     }
 
     const { text, values } = sql.toParams();
@@ -148,12 +160,13 @@ function isOne(params: any): params is GetOneParams {
 }
 
 async function prepareParams(params: Partial<GetParams>, sql: rawSql.SelectStatement, db: any) {
-    if (params.ids) {
-        sql.where($in('id', ...params.ids));
-    }
+    let total: number | undefined = undefined;
+    // const { text, values } = select('COUNT(*) as total').from(sql).toParams();
+    // total = (await db.get(text, values))!.total;
 
-    const { text, values } = select('COUNT(*) as total').from(sql).toParams();
-    const { total } = (await db.get(text, values))!;
+    if (params.target) {
+        sql.where(params.target, rawSql(params.id));
+    }
 
     if (params.sort) {
         const { field, order } = params.sort;
@@ -165,6 +178,7 @@ async function prepareParams(params: Partial<GetParams>, sql: rawSql.SelectState
         sql.limit(perPage);
         sql.offset((page - 1) * perPage);
     }
+
     return total;
 }
 

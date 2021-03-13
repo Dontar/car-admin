@@ -54,7 +54,7 @@ interface RecordType {
 }
 
 export type GetParams = GetListParams & GetManyParams & GetManyReferenceParams;
-export type GetResult<T> = GetListResult<T> & GetManyResult<T> & GetManyReferenceResult<T>;
+export type GetResult<T> = Partial<GetListResult<T> & GetManyResult<T> & GetManyReferenceResult<T>>;
 
 export interface GetListParams {
     pagination: {

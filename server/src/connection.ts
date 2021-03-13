@@ -6,7 +6,7 @@ let db: Promise<Database<SQ3Database, Statement>> | undefined = undefined;
 export function getDB(): Promise<Database<SQ3Database, Statement>> {
     if (!db) {
         db = open({
-            filename: '/data/CarDB-kaloyan-pc.db',
+            filename: '/data/CarDB.db',
             driver: SQ3Database
         });
 
