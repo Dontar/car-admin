@@ -5,7 +5,8 @@ export interface ICars {
     mark_name: string;
     model_name: string;
     produce_year: string;
-    client_id?: any;
+    company_id?: number;
+    person_id?: number;
 }
 
 export interface ICompany {
@@ -25,7 +26,7 @@ export interface ICompany {
     vhod: string;
     apartment: string;
     floor: string;
-    vehicle_ids: string;
+    car_ids: string | number[];
 }
 
 export interface IPerson {
@@ -45,7 +46,7 @@ export interface IPerson {
     vhod: string;
     apartment: string;
     floor: string;
-    vehicle_ids: string;
+    car_ids: string | number[];
 }
 
 type Identifier = string | number;

@@ -1,12 +1,12 @@
-import { Database as SQ3Database, Statement } from 'sqlite3';
+import { Database as SQ3Database, Statement as SQ3Statement } from 'sqlite3';
 import { Database, open } from 'sqlite';
 
-let db: Promise<Database<SQ3Database, Statement>> | undefined = undefined;
+let db: Promise<Database<SQ3Database, SQ3Statement>> | undefined = undefined;
 
-export function getDB(): Promise<Database<SQ3Database, Statement>> {
+export function getDB(): Promise<Database<SQ3Database, SQ3Statement>> {
     if (!db) {
         db = open({
-            filename: '/data/CarDB.db',
+            filename: process.env.DB_PATH!,
             driver: SQ3Database
         });
 

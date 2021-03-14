@@ -14,7 +14,8 @@ export async function getCars(params: Partial<GetParams> | GetOneParams): Promis
         'vm.name as mark_name',
         'vmd.name as model_name',
         'v.produce_year as produce_year',
-        'max(vc.client_id) as client_id'
+        'max(vc.client_id) as company_id',
+        'max(vc.client_id) as person_id'
     ).from('vehicles v')
         .join('vehicle_mark vm', { 'vm.ID': 'v.MARK_ID' })
         .join('vehicle_model vmd', { 'vmd.ID': 'v.MODEL_ID' })
@@ -69,7 +70,7 @@ export async function getPersons(params: Partial<GetParams> | GetOneParams): Pro
         'c.VHOD as vhod',
         'c.APARTMENT as apartment',
         'c.FLOOR as floor',
-        'group_concat(vc.VEHICLE_ID) as vehicle_ids'
+        'group_concat(vc.VEHICLE_ID) as car_ids'
     ).from('clients c')
         .leftJoin('vc', { 'vc.CLIENT_ID': 'c.ID' })
         .where('c.CLIENT_TYPE', rawSql(1))
@@ -90,12 +91,12 @@ export async function getPersons(params: Partial<GetParams> | GetOneParams): Pro
     if (isOne(params)) {
         const row = await db.get<IPerson>(text, values);
         return {
-            data: row!
+            data: stringIdsToArray(row!)
         };
     } else {
         const rows = await db.all<IPerson[]>(text, values);
         return {
-            data: rows,
+            data: stringIdsToArray(rows),
             total
         };
     }
@@ -123,7 +124,7 @@ export async function getCompanies(params: Partial<GetParams> | GetOneParams): P
         'c.VHOD as vhod',
         'c.APARTMENT as apartment',
         'c.FLOOR as floor',
-        'group_concat(vc.VEHICLE_ID) as vehicle_ids'
+        'group_concat(vc.VEHICLE_ID) as car_ids'
     ).from('clients c')
         .leftJoin('vc', { 'vc.CLIENT_ID': 'c.ID' })
         .where('c.CLIENT_TYPE', rawSql(2))
@@ -144,12 +145,12 @@ export async function getCompanies(params: Partial<GetParams> | GetOneParams): P
     if (isOne(params)) {
         const row = await db.get<ICompany>(text, values);
         return {
-            data: row!
+            data: stringIdsToArray(row!)
         }
     } else {
         const rows = await db.all<ICompany[]>(text, values);
         return {
-            data: rows,
+            data: stringIdsToArray(rows),
             total
         }
     }
@@ -182,3 +183,24 @@ async function prepareParams(params: Partial<GetParams>, sql: rawSql.SelectState
     return total;
 }
 
+function stringIdsToArray<T>(obj: T): T;
+function stringIdsToArray<T>(obj: T | T[]): T | T[] {
+
+    function transform<T>(obj: T): T {
+        Object.keys(obj).forEach(field => {
+            if (field.substr(field.length - 4) === '_ids') {
+                if (typeof (<any>obj)[field] === 'string') {
+                    const val: string = (<any>obj)[field];
+                    (<any>obj)[field] = val.split(',').map(i => Number(i));
+                }
+            }
+        });
+        return obj;
+    }
+
+    if (Array.isArray(obj)) {
+        return obj.map(obj => transform(obj));
+    } else {
+        return transform(obj);
+    }
+}

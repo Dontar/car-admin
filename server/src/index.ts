@@ -3,7 +3,9 @@ import { AddressInfo } from 'net';
 import cors from 'cors';
 import morgan from 'morgan';
 import { getCars, getCompanies, getPersons } from './data-retrieval';
+import { config } from 'dotenv';
 
+config();
 const app = express();
 
 app.use(cors({
@@ -20,7 +22,7 @@ app.get('/companies', async (req, res) => {
     res.json(data);
 });
 
-app.get('/persons', async (req, res) => {
+app.get('/people', async (req, res) => {
     const data = await getPersons(req.query);
     res.json(data);
 });
