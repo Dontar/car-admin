@@ -56,7 +56,7 @@ export async function getPersons(params: Partial<GetParams> | GetOneParams): Pro
     const sql = select(
         'c.ID as id',
         'c.CLIENT_NAME as client_name',
-        'c.EGN as bulstat',
+        'c.EGN as egn',
         'c.REPRESENTATIVE as representative',
         'c.PHONE as phone',
         'c.MOBILE as mobile',

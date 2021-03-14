@@ -29,24 +29,8 @@ export interface ICompany {
     car_ids: string | number[];
 }
 
-export interface IPerson {
-    id: number;
-    client_name: string;
+export interface IPerson extends Omit<ICompany, 'bulstat'> {
     egn: string;
-    representative: string;
-    phone: string;
-    mobile: string;
-    region_name: string;
-    municipality_name: string;
-    city: string;
-    postcode: string;
-    street_name: string;
-    street_no: string;
-    blok: string;
-    vhod: string;
-    apartment: string;
-    floor: string;
-    car_ids: string | number[];
 }
 
 type Identifier = string | number;
