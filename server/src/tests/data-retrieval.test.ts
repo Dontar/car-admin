@@ -1,4 +1,6 @@
 import { getCars, getCompanies, getPersons } from "../data-retrieval";
+import { config } from 'dotenv';
+config();
 
 jest.setTimeout(5000 * 10);
 
