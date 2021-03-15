@@ -2,6 +2,8 @@ import { config } from 'dotenv';
 import { getCars } from "../cars/cars";
 config();
 
+jest.setTimeout(5000 * 10);
+
 describe('Test car data retrieval', () => {
 
     it('should get a car from db', async () => {
@@ -40,10 +42,11 @@ describe('Test car data retrieval', () => {
     it('should get cars from db with filter', async () => {
         const data = await getCars({
             filter: { dkn: 'СА' },
-            pagination: { page: 1, perPage: 2 },
+            pagination: { page: 1, perPage: 10 },
             sort: { field: 'id', order: 'ASC' }
         });
-        expect(data.data?.length).toBe(2);
+        expect(data.total).toBe(18);
+        expect(data.data?.length).toBe(10);
         expect(data).toMatchSnapshot();
     });
 

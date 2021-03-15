@@ -8,7 +8,7 @@ export async function getCompanies(params: Partial<GetParams>): Promise<GetResul
 export async function getCompanies(params: Partial<GetParams> | GetOneParams): Promise<GetResult<ICompany> | GetOneResult<ICompany>> {
     const db = await getDB();
 
-    const sql = select(
+    let sql = select(
         'c.ID as id',
         'c.CLIENT_NAME as client_name',
         'c.EGN as bulstat',
@@ -38,7 +38,7 @@ export async function getCompanies(params: Partial<GetParams> | GetOneParams): P
         if (params.ids) {
             sql.where($in('c.id', ...params.ids));
         } else {
-            /* total = */ await prepareParams(params, sql, db);
+            sql = await prepareParams(params, sql);
         }
     }
 

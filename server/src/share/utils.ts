@@ -11,8 +11,8 @@ export async function getSqlCount(sql: rawSql.SelectStatement, db: Connection) {
     return (await db.get(text, values))!.total;
 }
 
-export async function prepareParams(params: Partial<GetParams>, sql: rawSql.SelectStatement, _db: Connection) {
-    let total: number | undefined = undefined;
+export async function prepareParams(params: Partial<GetParams>, sql: rawSql.SelectStatement) {
+    // let total: number | undefined = undefined;
 
     if (params.target) {
         sql.where(params.target, rawSql(params.id));
@@ -29,7 +29,7 @@ export async function prepareParams(params: Partial<GetParams>, sql: rawSql.Sele
         sql.offset((page - 1) * perPage);
     }
 
-    return total;
+    return sql;
 }
 
 export function stringIdsToArray<T>(obj: T): T;

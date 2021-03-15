@@ -9,7 +9,7 @@ export async function getPersons(params: Partial<GetParams>): Promise<GetResult<
 export async function getPersons(params: Partial<GetParams> | GetOneParams): Promise<GetResult<IPerson> | GetOneResult<IPerson>> {
     const db = await getDB();
 
-    const sql = select(
+    let sql = select(
         'c.ID as id',
         'c.CLIENT_NAME as client_name',
         'c.EGN as egn',
@@ -39,7 +39,7 @@ export async function getPersons(params: Partial<GetParams> | GetOneParams): Pro
         if (params.ids) {
             sql.where($in('c.id', ...params.ids));
         } else {
-            /* total = */ await prepareParams(params, sql, db);
+            sql = await prepareParams(params, sql);
         }
     }
 

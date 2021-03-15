@@ -1,0 +1,163 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Test persons data retrieval should get 2 persons from db 1`] = `
+Object {
+  "data": Array [
+    Object {
+      "apartment": "2",
+      "blok": "18",
+      "car_ids": null,
+      "city": "СИЛИСТРА",
+      "client_name": "First Middle Last",
+      "egn": "6310305565",
+      "floor": "1",
+      "id": 9219,
+      "mobile": "0891043493",
+      "municipality_name": "Силистра",
+      "phone": "02830123",
+      "postcode": "7500",
+      "region_name": "СИЛИСТРА",
+      "representative": "",
+      "street_name": "ГЕНЕРАЛ  СКОБЕЛЕВ",
+      "street_no": "",
+      "vhod": "А",
+    },
+    Object {
+      "apartment": "7",
+      "blok": "9",
+      "car_ids": null,
+      "city": "СОФИЯ",
+      "client_name": "Николинка Стефанова Цолова",
+      "egn": "5507181593",
+      "floor": "4",
+      "id": 9451,
+      "mobile": "0897527002",
+      "municipality_name": "Столична",
+      "phone": "0888998899",
+      "postcode": "1000",
+      "region_name": "София (столица)",
+      "representative": "",
+      "street_name": "ЛЮБЛАНА",
+      "street_no": "1",
+      "vhod": "a",
+    },
+  ],
+  "total": 1030889,
+}
+`;
+
+exports[`Test persons data retrieval should get a person from db 1`] = `
+Object {
+  "data": Object {
+    "apartment": "2",
+    "blok": "18",
+    "car_ids": null,
+    "city": "СИЛИСТРА",
+    "client_name": "First Middle Last",
+    "egn": "6310305565",
+    "floor": "1",
+    "id": 9219,
+    "mobile": "0891043493",
+    "municipality_name": "Силистра",
+    "phone": "02830123",
+    "postcode": "7500",
+    "region_name": "СИЛИСТРА",
+    "representative": "",
+    "street_name": "ГЕНЕРАЛ  СКОБЕЛЕВ",
+    "street_no": "",
+    "vhod": "А",
+  },
+}
+`;
+
+exports[`Test persons data retrieval should get persons from db with pagination 1`] = `
+Object {
+  "data": Array [
+    Object {
+      "apartment": "0",
+      "blok": "0",
+      "car_ids": null,
+      "city": "РУСЕ",
+      "client_name": "Юрий Николов Величков",
+      "egn": "6104266565",
+      "floor": "1",
+      "id": 9213,
+      "mobile": "0889827210",
+      "municipality_name": "Русе",
+      "phone": "9294130",
+      "postcode": "7000",
+      "region_name": "РУСЕ",
+      "representative": "",
+      "street_name": "СЛАВЯНСКИ",
+      "street_no": "14",
+      "vhod": "1",
+    },
+    Object {
+      "apartment": "2",
+      "blok": "18",
+      "car_ids": null,
+      "city": "СИЛИСТРА",
+      "client_name": "First Middle Last",
+      "egn": "6310305565",
+      "floor": "1",
+      "id": 9219,
+      "mobile": "0891043493",
+      "municipality_name": "Силистра",
+      "phone": "02830123",
+      "postcode": "7500",
+      "region_name": "СИЛИСТРА",
+      "representative": "",
+      "street_name": "ГЕНЕРАЛ  СКОБЕЛЕВ",
+      "street_no": "",
+      "vhod": "А",
+    },
+  ],
+  "total": 1030889,
+}
+`;
+
+exports[`Test persons data retrieval should get persons from db with sorting 1`] = `
+Object {
+  "data": Array [
+    Object {
+      "apartment": "0",
+      "blok": "0",
+      "car_ids": null,
+      "city": "РУСЕ",
+      "client_name": "Юрий Николов Величков",
+      "egn": "6104266565",
+      "floor": "1",
+      "id": 9213,
+      "mobile": "0889827210",
+      "municipality_name": "Русе",
+      "phone": "9294130",
+      "postcode": "7000",
+      "region_name": "РУСЕ",
+      "representative": "",
+      "street_name": "СЛАВЯНСКИ",
+      "street_no": "14",
+      "vhod": "1",
+    },
+    Object {
+      "apartment": "2",
+      "blok": "18",
+      "car_ids": null,
+      "city": "СИЛИСТРА",
+      "client_name": "First Middle Last",
+      "egn": "6310305565",
+      "floor": "1",
+      "id": 9219,
+      "mobile": "0891043493",
+      "municipality_name": "Силистра",
+      "phone": "02830123",
+      "postcode": "7500",
+      "region_name": "СИЛИСТРА",
+      "representative": "",
+      "street_name": "ГЕНЕРАЛ  СКОБЕЛЕВ",
+      "street_no": "",
+      "vhod": "А",
+    },
+  ],
+  "total": 1030889,
+}
+`;
