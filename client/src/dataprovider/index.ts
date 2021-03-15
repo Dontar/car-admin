@@ -1,24 +1,43 @@
 import { DataProvider } from "ra-core";
 import { stringify } from 'qs';
 
-const url = new URL('http://localhost:3001');
-
-async function request(resources: string, params: any) {
-    url.pathname = resources;
-    url.search = stringify(params);
-
-    const res = await fetch(url.toString());
-    return res.json();
+function partition(arr: any[], n: number): any[][] {
+    return arr.length ? [arr.splice(0, n)].concat(partition(arr, n)) : [];
 }
 
-export const dataProvider: Partial<DataProvider> = {
-    getList: request,
-    getMany: request,
-    getManyReference: request,
-    getOne: request,
-    // create: request,
-    // update: request,
-    // updateMany: request,
-    // delete: request,
-    // deleteMany: request
-};
+function request(url: URL) {
+    return async function request(resources: string, params: any) {
+        url.pathname = resources;
+
+        if (params.ids && params.ids.length > 10) {
+            let completeData = { data: [] };
+            const ids = partition(params.ids, 10);
+            for (const idSet of ids) {
+                url.search = stringify({ ...params, ids: idSet });
+                const data = await fetch(url.toString()).then(res => res.json());
+                completeData.data.concat(data.data);
+            }
+            return completeData;
+        } else {
+            url.search = stringify(params);
+
+            const res = await fetch(url.toString());
+            return res.json();
+        }
+    }
+}
+
+export function myDataProvider(url: string): Partial<DataProvider> {
+    const urlObj = new URL(url);
+    return {
+        getList: request(urlObj),
+        getMany: request(urlObj),
+        getManyReference: request(urlObj),
+        getOne: request(urlObj),
+        // create: request,
+        // update: request,
+        // updateMany: request,
+        // delete: request,
+        // deleteMany: request
+    };
+}
