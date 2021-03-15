@@ -13,17 +13,17 @@ const CarFilter = (props: Partial<FilterProps>) => (
 
 export const CarList = (props: ListProps) => (
     <List {...props} filters={<CarFilter />}>
-        <Datagrid rowClick="edit" >
+        <Datagrid rowClick="show" >
             {/* <TextField source="id" /> */}
             <TextField source="rama" />
             <TextField source="dkn" />
             <TextField source="mark_name" />
             <TextField source="model_name" />
             <DateField source="produce_year" />
-            <ReferenceField source="company_id" reference="companies">
+            <ReferenceField source="company_id" reference="companies" link="show">
                 <TextField source="client_name" display='block' noWrap style={{ textOverflow: 'ellipsis', maxWidth: '5cm' }} />
             </ReferenceField>
-            <ReferenceField source="person_id" reference="people">
+            <ReferenceField source="person_id" reference="people" link="show">
                 <TextField source="client_name" display='block' noWrap style={{ textOverflow: 'ellipsis', maxWidth: '5cm' }} />
             </ReferenceField>
         </Datagrid>

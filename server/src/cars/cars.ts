@@ -30,7 +30,7 @@ export async function getCars(params: Partial<GetParams> | GetOneParams): Promis
         if (params.ids) {
             sql.where($in('v.id', ...params.ids));
         } else {
-            total = await processCarFilter(params, sql, db);
+            total = await processCarFilter(params, sql, db) ?? total;
             sql = await prepareParams(params, sql);
         }
     }
