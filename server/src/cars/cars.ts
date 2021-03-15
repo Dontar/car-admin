@@ -1,4 +1,4 @@
-import { getDB } from "../connection";
+import { Connection, getDB } from "../connection";
 import rawSql, { in as $in, like, select } from 'sql-bricks-sqlite';
 import { GetOneParams, GetOneResult, GetParams, GetResult, ICars } from "../share/models";
 import { getSqlCount, isOne, prepareParams } from "../share/utils";
@@ -30,12 +30,7 @@ export async function getCars(params: Partial<GetParams> | GetOneParams): Promis
         if (params.ids) {
             sql.where($in('v.id', ...params.ids));
         } else {
-            if (params.filter) {
-                const { dkn, ...filter } = params.filter;
-                sql.where(like('dkn', rawSql(`'${dkn}%'`)));
-                sql.where(filter);
-                total = await getSqlCount(sql, db);
-            }
+            total = await processCarFilter(params, sql, db);
             sql = await prepareParams(params, sql);
         }
     }
@@ -53,4 +48,16 @@ export async function getCars(params: Partial<GetParams> | GetOneParams): Promis
             total
         };
     }
+}
+
+async function processCarFilter(params: Partial<GetParams>, sql: rawSql.SelectStatement, db: Connection) {
+    let total: number | undefined;
+    if (params.filter) {
+        const { dkn, ...filter } = params.filter;
+        sql.where(like('dkn', rawSql(`'${dkn}%'`)));
+        
+        sql.where(Object.entries(filter).reduce((a, [key, val]) => (a[key] = rawSql(val), a), {} as any));
+        total = await getSqlCount(sql, db);
+    }
+    return total;
 }

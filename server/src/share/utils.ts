@@ -7,8 +7,8 @@ export function isOne(params: any): params is GetOneParams {
 }
 
 export async function getSqlCount(sql: rawSql.SelectStatement, db: Connection) {
-    const { text, values } = select('COUNT(*) as total').from(sql).toParams();
-    return (await db.get(text, values))!.total;
+    const qry = select('COUNT(*) as total').from(sql).toString();
+    return (await db.get(qry))!.total;
 }
 
 export async function prepareParams(params: Partial<GetParams>, sql: rawSql.SelectStatement) {
