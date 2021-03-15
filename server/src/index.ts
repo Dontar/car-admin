@@ -2,8 +2,10 @@ import express, { RequestHandler } from 'express';
 import { AddressInfo } from 'net';
 import cors from 'cors';
 import morgan from 'morgan';
-import { getCars, getCompanies, getPersons } from './data-retrieval';
 import { config } from 'dotenv';
+import { getCompanies } from "./companies/companies";
+import { getPersons } from "./people/people";
+import { getCars } from "./cars/cars";
 
 config();
 const app = express();

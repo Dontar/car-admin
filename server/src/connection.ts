@@ -1,7 +1,9 @@
 import { Database as SQ3Database, Statement as SQ3Statement } from 'sqlite3';
 import { Database, open } from 'sqlite';
 
-export function getDB(): Promise<Database<SQ3Database, SQ3Statement>> {
+export type Connection = Database<SQ3Database, SQ3Statement>;
+
+export function getDB(): Promise<Connection> {
     if (!getDB.db) {
         getDB.db = open({
             filename: process.env.DB_PATH!,
@@ -12,5 +14,5 @@ export function getDB(): Promise<Database<SQ3Database, SQ3Statement>> {
 }
 
 export namespace getDB {
-    export let db: Promise<Database<SQ3Database, SQ3Statement>> | undefined = undefined;
+    export let db: Promise<Connection> | undefined = undefined;
 }
