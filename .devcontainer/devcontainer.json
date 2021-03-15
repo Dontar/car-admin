@@ -30,6 +30,7 @@
 	"remoteUser": "node",
 
 	"mounts": [
-		"type=bind,source=C:/Users/Kaloyan/work/personal/CarDB,target=/data"
+		"type=bind,source=C:/Users/Kaloyan/work/personal/CarDB,target=/data",
+		"type=volume,source=car-database,target=/srv/data"
 	]
 }
