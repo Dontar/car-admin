@@ -2,13 +2,17 @@
 // https://github.com/microsoft/vscode-dev-containers/tree/v0.163.1/containers/typescript-node
 {
 	"name": "Node.js & TypeScript",
-	"build": {
-		"dockerfile": "Dockerfile",
-		// Update 'VARIANT' to pick a Node version: 10, 12, 14
-		"args": { 
-			"VARIANT": "14"
-		}
-	},
+	"dockerComposeFile": "docker-compose.yml",
+	"service": "car-admin",
+	"workspaceFolder": "/workspace",
+
+	// "build": {
+	// 	"dockerfile": "Dockerfile",
+	// 	// Update 'VARIANT' to pick a Node version: 10, 12, 14
+	// 	"args": { 
+	// 		"VARIANT": "14"
+	// 	}
+	// },
 
 	// Set *default* container specific settings.json values on container create.
 	"settings": { 
@@ -27,10 +31,10 @@
 	// "postCreateCommand": "yarn install",
 
 	// Comment out connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
-	"remoteUser": "node",
+	"remoteUser": "node"
 
-	"mounts": [
-		"type=bind,source=C:/Users/Kaloyan/work/personal/CarDB,target=/data",
-		"type=volume,source=car-database,target=/srv/data"
-	]
+	// "mounts": [
+	// 	"type=bind,source=C:/Users/Kaloyan/work/personal/CarDB,target=/data",
+	// 	"type=volume,source=car-database,target=/srv/data"
+	// ]
 }
