@@ -1,11 +1,12 @@
-import { Admin, AdminProps, DataProvider, RaThemeOptions, Resource } from 'react-admin';
+import { Admin, AdminProps, DataProvider, Resource } from 'react-admin';
 import { myDataProvider } from './dataprovider';
 import Cookies from 'js-cookie';
 import { CarList, CarShow } from './cars';
 import { CompanyShow } from './companies';
 import { PersonShow } from './people';
+import { createMuiTheme } from '@material-ui/core';
 
-const theme: RaThemeOptions = {
+const theme = createMuiTheme({
     palette: {
         secondary: {
             light: '#6ec6ff',
@@ -13,13 +14,8 @@ const theme: RaThemeOptions = {
             dark: '#0069c0',
             contrastText: '#fff'
         }
-    },
-    props: {
-        MuiListItem: {
-            divider: true
-        }
     }
-};
+});
 
 const adminProps: AdminProps = {
     dataProvider: myDataProvider(Cookies.get('api_host') ?? 'http://localhost:3001') as DataProvider,

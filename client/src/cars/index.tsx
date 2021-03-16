@@ -1,11 +1,12 @@
 import {
+    ChipField,
     Datagrid, DateField, DateInput, Edit, EditProps, Filter, FilterProps, List, ListProps, RaThemeOptions, ReferenceField,
     ReferenceInput,
     SelectInput,
-    Show, ShowProps, SimpleForm, SimpleList, SimpleShowLayout, TextField, TextInput
+    Show, ShowProps, SimpleForm, SimpleList, SimpleListProps, SimpleShowLayout, TextField, TextInput
 } from 'react-admin';
 
-import { useMediaQuery } from '@material-ui/core';
+import { useMediaQuery, withTheme, ThemeProvider, WithTheme, Typography } from '@material-ui/core';
 
 const CarFilter = (props: Partial<FilterProps>) => (
     <Filter {...props}>
@@ -13,14 +14,32 @@ const CarFilter = (props: Partial<FilterProps>) => (
     </Filter>
 );
 
+const MobileList = withTheme((props: SimpleListProps & WithTheme) => {
+    props.theme.props = {
+        ...props.theme.props,
+        MuiListItem: {
+            divider: true
+        }
+    }
+    return (
+        <ThemeProvider theme={props.theme}>
+            <SimpleList {...props} />
+        </ThemeProvider>
+    );
+});
+
 export const CarList = (props: ListProps) => {
     const isSmall = useMediaQuery<RaThemeOptions>(theme => (theme.breakpoints!).down!('sm'));
     return (
         <List {...props} filters={<CarFilter />}>
             {isSmall ? (
-                <SimpleList
+                <MobileList
                     linkType="show"
-                    primaryText={record => record.dkn || 'NO NUMBER'}
+                    primaryText={record => (
+                        <Typography color={(record.company_id || record.person_id) ? 'primary' : 'inherit'}>
+                            {`${record.dkn || 'NO NUMBER'}`}
+                        </Typography>
+                    )}
                     secondaryText={record => record.rama}
                     tertiaryText={record => `${record.mark_name} ${record.model_name} ${record.produce_year}`}
                 />
@@ -53,11 +72,11 @@ export const CarShow = (props: ShowProps) => (
             <TextField source="mark_name" />
             <TextField source="model_name" />
             <DateField source="produce_year" />
-            <ReferenceField source="company_id" reference="companies">
-                <TextField source="id" />
+            <ReferenceField source="company_id" reference="companies" linkType="show">
+                <ChipField source="client_name" />
             </ReferenceField>
-            <ReferenceField source="person_id" reference="people">
-                <TextField source="id" />
+            <ReferenceField source="person_id" reference="people" linkType="show">
+                <ChipField source="client_name" />
             </ReferenceField>
         </SimpleShowLayout>
     </Show>
