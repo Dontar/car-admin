@@ -11,17 +11,21 @@ services:
         USER_GID: 1000
         VARIANT: "14-buster"
 
+    labels:
+      vsch.local.repository: "git@git.local:dontar/car-admin.git"
+      vsch.local.repository.folder: "car-admin"
+      vsch.local.repository.volume: "vsc-remote-containers"
+
     volumes:
       # Forwards the local Docker socket to the container.
       # - /var/run/docker.sock:/var/run/docker-host.sock 
       # Update this to wherever you want VS Code to mount the folder of your project
       - vsc-remote-containers:/workspace
       - car-database:/srv/data
-      # - C:/Users/Kaloyan/work/personal/CarDB:/data
+      - ~/work/personal/CarDB:/data
 
     # Overrides default command so things don't shut down after the process ends.
-    entrypoint: ["/bin/sh"]
-    command: ["-c", "echo Container started ; trap \"exit 0\" 15; while sleep 1 & wait $$!; do :; done"]
+    command: /bin/sh -c "while sleep 1000; do :; done"
 
     # Uncomment the next four lines if you will use a ptrace-based debuggers like C++, Go, and Rust.
     # cap_add:
@@ -34,8 +38,22 @@ services:
 
     # Use "forwardPorts" in **devcontainer.json** to forward an app port locally. 
     # (Adding the "ports" property to this file will not forward from a Codespace.)
+
+  mongo:
+    image: mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+    ports:
+      - 27017:27017
+
 volumes:
   vsc-remote-containers:
     external: true
+    labels:
+      vsch.local.repository: "git@git.local:dontar/car-admin.git"
+      vsch.local.repository.unique: "false"
+
   car-database:
     external: true

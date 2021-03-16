@@ -15,13 +15,21 @@
 	// },
 
 	// Set *default* container specific settings.json values on container create.
-	"settings": { 
+	"settings": {
 		"terminal.integrated.shell.linux": "/bin/bash"
 	},
 
 	// Add the IDs of extensions you want installed when the container is created.
 	"extensions": [
-		"dbaeumer.vscode-eslint"
+		"dbaeumer.vscode-eslint",
+		"editorconfig.editorconfig",
+		"streetsidesoftware.code-spell-checker",
+		"mhutchie.git-graph",
+		"kavod-io.vscode-jest-test-adapter",
+		"ryu1kn.partial-diff",
+		"christian-kohler.path-intellisense",
+		"hbenl.vscode-test-explorer",
+		"visualstudioexptteam.vscodeintellicode"
 	],
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
