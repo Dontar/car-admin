@@ -1,34 +1,48 @@
 import {
-    Datagrid, DateField, DateInput, Edit, EditProps, Filter, FilterProps, List, ListProps, ReferenceField,
+    Datagrid, DateField, DateInput, Edit, EditProps, Filter, FilterProps, List, ListProps, RaThemeOptions, ReferenceField,
     ReferenceInput,
     SelectInput,
-    Show, ShowProps, SimpleForm, SimpleShowLayout, TextField, TextInput
+    Show, ShowProps, SimpleForm, SimpleList, SimpleShowLayout, TextField, TextInput
 } from 'react-admin';
+
+import { useMediaQuery } from '@material-ui/core';
 
 const CarFilter = (props: Partial<FilterProps>) => (
     <Filter {...props}>
-        <TextInput label="Car number" source="dkn" alwaysOn />
+        <TextInput label="Car number" source="dkn" alwaysOn variant="outlined" />
     </Filter>
 );
 
-export const CarList = (props: ListProps) => (
-    <List {...props} filters={<CarFilter />}>
-        <Datagrid rowClick="show" >
-            {/* <TextField source="id" /> */}
-            <TextField source="rama" />
-            <TextField source="dkn" />
-            <TextField source="mark_name" />
-            <TextField source="model_name" />
-            <DateField source="produce_year" />
-            <ReferenceField source="company_id" reference="companies" link="show">
-                <TextField source="client_name" display='block' noWrap style={{ textOverflow: 'ellipsis', maxWidth: '5cm' }} />
-            </ReferenceField>
-            <ReferenceField source="person_id" reference="people" link="show">
-                <TextField source="client_name" display='block' noWrap style={{ textOverflow: 'ellipsis', maxWidth: '5cm' }} />
-            </ReferenceField>
-        </Datagrid>
-    </List>
-);
+export const CarList = (props: ListProps) => {
+    const isSmall = useMediaQuery<RaThemeOptions>(theme => (theme.breakpoints!).down!('sm'));
+    return (
+        <List {...props} filters={<CarFilter />}>
+            {isSmall ? (
+                <SimpleList
+                    linkType="show"
+                    primaryText={record => record.dkn || 'NO NUMBER'}
+                    secondaryText={record => record.rama}
+                    tertiaryText={record => `${record.mark_name} ${record.model_name} ${record.produce_year}`}
+                />
+            ) : (
+                <Datagrid rowClick="show" >
+                    {/* <TextField source="id" /> */}
+                    <TextField source="rama" />
+                    <TextField source="dkn" />
+                    <TextField source="mark_name" />
+                    <TextField source="model_name" />
+                    <TextField source="produce_year" align="right" />
+                    <ReferenceField source="company_id" reference="companies" link="show">
+                        <TextField source="client_name" display='block' noWrap style={{ textOverflow: 'ellipsis', maxWidth: '5cm' }} />
+                    </ReferenceField>
+                    <ReferenceField source="person_id" reference="people" link="show">
+                        <TextField source="client_name" display='block' noWrap style={{ textOverflow: 'ellipsis', maxWidth: '5cm' }} />
+                    </ReferenceField>
+                </Datagrid>
+            )}
+        </List>
+    );
+}
 
 export const CarShow = (props: ShowProps) => (
     <Show {...props}>
