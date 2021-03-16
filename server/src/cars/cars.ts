@@ -45,7 +45,7 @@ export async function getCars(params: Partial<GetParams> | GetOneParams): Promis
         const rows = await db.all<ICars[]>(text, values);
         return {
             data: rows,
-            total
+            total: !params.ids ? total : undefined
         };
     }
 }
