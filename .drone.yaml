@@ -1,0 +1,24 @@
+kind: pipeline
+type: kubernetes
+name: default
+
+trigger:
+  branch:
+  - master
+
+steps:
+# Build the frontend
+  - name: frontend_build
+    image: node:lts-alpine
+    commands:
+      - cd client
+      - npm run build
+# Build docker image for the frontend
+  - name: frontend_build_docker
+    image: alpinelinux/docker-cli:latest
+    environment:
+      DOCKER_HOST: tcp://k3s.local:2345
+    commands:
+      - cd client
+      - docker build -t reg.local/car-admin-frontend:latest -f ci/Dockerfile .
+      - docker push
