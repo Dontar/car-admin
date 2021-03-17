@@ -1,7 +1,10 @@
 import {
     ChipField,
     ReferenceArrayField,
-    Show, ShowProps, SimpleShowLayout, SingleFieldList, TextField} from "react-admin";
+    Show, ShowProps, SimpleShowLayout, SingleFieldList, TextField
+} from "react-admin";
+
+import DirectionsCarOutlinedIcon from '@material-ui/icons/DirectionsCarOutlined';
 
 // export const PersonList = (props: ListProps) => (
 //     <List {...props}>
@@ -32,8 +35,13 @@ import {
 export const PersonShow = (props: ShowProps) => (
     <Show {...props}>
         <SimpleShowLayout>
-            <TextField source="id" />
-            <TextField source="client_name" />
+            {/* <TextField source="id" /> */}
+            <TextField source="client_name" variant="h6" addLabel={true} />
+            <ReferenceArrayField source="car_ids" reference="cars">
+                <SingleFieldList linkType="show">
+                    <ChipField source="dkn" icon={<DirectionsCarOutlinedIcon />} />
+                </SingleFieldList>
+            </ReferenceArrayField>
             <TextField source="egn" />
             <TextField source="representative" />
             <TextField source="phone" />
@@ -48,11 +56,6 @@ export const PersonShow = (props: ShowProps) => (
             <TextField source="vhod" />
             <TextField source="apartment" />
             <TextField source="floor" />
-            <ReferenceArrayField source="car_ids" reference="cars">
-                <SingleFieldList linkType="show">
-                    <ChipField source="dkn" />
-                </SingleFieldList>
-            </ReferenceArrayField>
         </SimpleShowLayout>
     </Show>
 );
