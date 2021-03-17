@@ -53,9 +53,9 @@ export async function getCars(params: Partial<GetParams> | GetOneParams): Promis
 async function processCarFilter(params: Partial<GetParams>, sql: rawSql.SelectStatement, db: Connection) {
     let total: number | undefined;
     if (params.filter) {
-        const { dkn, ...filter } = params.filter;
-        sql.where(like('dkn', rawSql(`'${dkn}%'`)));
-        
+        const { dkn, ...filter }: { dkn: string } = params.filter;
+        sql.where(like('dkn', rawSql(`'${dkn.toUpperCase()}%'`)));
+
         sql.where(Object.entries(filter).reduce((a, [key, val]) => (a[key] = rawSql(val), a), {} as any));
         total = await getSqlCount(sql, db);
     }

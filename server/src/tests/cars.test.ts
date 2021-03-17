@@ -41,7 +41,7 @@ describe('Test car data retrieval', () => {
 
     it('should get cars from db with filter', async () => {
         const data = await getCars({
-            filter: { dkn: 'СА' },
+            filter: { dkn: 'са' },
             pagination: { page: 1, perPage: 10 },
             sort: { field: 'id', order: 'ASC' }
         });
