@@ -28,4 +28,4 @@ steps:
       - cd client
       - docker build -t registry.local/car-admin-frontend:latest -f ci/Dockerfile .
       - echo "$REGISTRY_PASS" | docker login -u $REGISTRY_USER --password-stdin registry.local
-      - docker push
+      - docker push registry.local/car-admin-frontend:latest
