@@ -1,0 +1,30 @@
+kind: pipeline
+type: kubernetes
+name: default
+
+trigger:
+  branch:
+  - master
+
+steps:
+# Build the frontend
+  - name: frontend_build
+    image: node:lts-alpine
+    commands:
+      - cd client
+      - npm run build
+# Build docker image for the frontend
+  - name: frontend_build_docker
+    image: alpinelinux/docker-cli:latest
+    environment:
+      DOCKER_HOST:
+        from_secret: docker_host
+      REGISTRY_USER:
+        from_secret: registry_user
+      REGISTRY_PASS:
+        from_secret: registry_pass
+    commands:
+      - cd client
+      - docker build -t registry.local/car-admin-frontend:latest -f ci/Dockerfile .
+      - echo "$REGISTRY_PASS" | docker login -u $REGISTRY_USER --password-stdin registry.local
+      - docker push
