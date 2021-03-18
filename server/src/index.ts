@@ -6,6 +6,8 @@ import { config } from 'dotenv';
 import { getCompanies } from "./companies/companies";
 import { getPersons } from "./people/people";
 import { getCars } from "./cars/cars";
+import { getDB } from './connection';
+import { join } from 'path';
 
 config();
 const app = express();
@@ -15,7 +17,7 @@ app.use(cors({
 })).use(morgan('common'));
 
 function catchAsyncErrors(handler: (...params: Parameters<RequestHandler>) => Promise<void>): RequestHandler {
-    return function(req, res, next) {
+    return function (req, res, next) {
         handler(req, res, next).catch(next);
     }
 }
@@ -38,7 +40,14 @@ app.get('/people', catchAsyncErrors(async (req, res) => {
 const port: number = Number(process.env.SERVER_PORT);
 const host: string = process.env.SERVER_HOST!;
 
-const server = app.listen(port, host, () => {
-    const { address, port } = server.address() as AddressInfo;
-    console.info(`Listening on ${address}:${port}`);
-});
+(async () => {
+    const db = await getDB();
+    await db.migrate({
+        migrationsPath: join(__dirname, '..', 'migrations')
+    });
+
+    const server = app.listen(port, host, () => {
+        const { address, port } = server.address() as AddressInfo;
+        console.info(`Listening on ${address}:${port}`);
+    });
+})().catch(console.error);

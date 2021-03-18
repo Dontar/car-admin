@@ -29,3 +29,34 @@ steps:
       - docker build -t registry.local/car-admin-frontend:latest -f ci/Dockerfile .
       - echo "$REGISTRY_PASS" | docker login -u $REGISTRY_USER --password-stdin registry.local
       - docker push registry.local/car-admin-frontend:latest
+---
+kind: pipeline
+type: kubernetes
+name: default
+
+trigger:
+  branch:
+  - master
+
+steps:
+  - name: backend_build
+    image: node/lts-alpine
+    commands:
+      - cd server
+      - npm install
+      - npm run build
+      - npm install --production
+  - name: backend_build_docker
+    image: alpinelinux/docker-cli:latest
+    environment:
+      DOCKER_HOST:
+        from_secret: docker_host
+      REGISTRY_USER:
+        from_secret: registry_user
+      REGISTRY_PASS:
+        from_secret: registry_pass
+    commands:
+      - cd server
+      - docker build -t registry.local/car-admin-backend:latest -f ci/Dockerfile .
+      - echo "$REGISTRY_PASS" | docker login -u $REGISTRY_USER --password-stdin registry.local
+      - docker push registry.local/car-admin-backend:latest
