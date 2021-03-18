@@ -40,7 +40,7 @@ trigger:
 
 steps:
   - name: backend_build
-    image: node/lts-alpine
+    image: node:lts-alpine
     commands:
       - cd server
       - npm install
