@@ -1,6 +1,6 @@
 kind: pipeline
 type: kubernetes
-name: default
+name: frontend
 
 trigger:
   branch:
@@ -32,7 +32,7 @@ steps:
 ---
 kind: pipeline
 type: kubernetes
-name: default
+name: backend
 
 trigger:
   branch:
