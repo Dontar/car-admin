@@ -1,58 +1,55 @@
-import { getDB } from "../connection";
-import rawSql, { in as $in, select } from 'sql-bricks-sqlite';
-import { GetOneParams, GetOneResult, GetParams, GetResult, ICompany } from "../share/models";
-import { isOne, prepareParams, stringIdsToArray } from "../share/utils";
+import { GetOneParams, GetParams } from '../share/models';
+import { getSqlCount, isOne, processGetManyRefs, processPaginationAndSort } from '../share/utils';
+import { createJsonStream } from '../share/JsonStream';
+import { sql, where } from '../share/sql-tag';
 
-export async function getCompanies(params: GetOneParams): Promise<GetOneResult<ICompany>>;
-export async function getCompanies(params: Partial<GetParams>): Promise<GetResult<ICompany>>;
-export async function getCompanies(params: Partial<GetParams> | GetOneParams): Promise<GetResult<ICompany> | GetOneResult<ICompany>> {
-    const db = await getDB();
+export function getCompanies(params: Partial<GetParams> | GetOneParams): NodeJS.ReadableStream {
 
-    let sql = select(
-        'c.ID as id',
-        'c.CLIENT_NAME as client_name',
-        'c.EGN as bulstat',
-        'c.REPRESENTATIVE as representative',
-        'c.PHONE as phone',
-        'c.MOBILE as mobile',
-        'c.REGION_NAME as region_name',
-        'c.MINUCIPALITY_NAME as municipality_name',
-        'c.CITY as city',
-        'c.POSTCODE as postcode',
-        'c.STREET_NAME as street_name',
-        'c.STREET_NO as street_no',
-        'c.BLOK as blok',
-        'c.VHOD as vhod',
-        'c.APARTMENT as apartment',
-        'c.FLOOR as floor',
-        'group_concat(vc.VEHICLE_ID) as car_ids'
-    ).from('clients c')
-        .leftJoin('vc', { 'vc.CLIENT_ID': 'c.ID' })
-        .where('c.CLIENT_TYPE', rawSql(2))
-        .groupBy('c.ID');
+    const qry = sql/* sql */`
+        select
+            c.id as id,
+            c.client_name as client_name,
+            c.egn as bulstat,
+            c.representative as representative,
+            c.phone as phone,
+            c.mobile as mobile,
+            c.region_name as region_name,
+            c.minucipality_name as municipality_name,
+            c.city as city,
+            c.postcode as postcode,
+            c.street_name as street_name,
+            c.street_no as street_no,
+            c.blok as blok,
+            c.vhod as vhod,
+            c.apartment as apartment,
+            c.floor as "floor",
+            json_group_array(vc.vehicle_id) as car_ids
+        from clients c
+        left join vc on	(vc.client_id = c.id)
+        ${where('c.client_type = 2')}
+        group by c.id
+    `;
 
-    let total: number | undefined = 78689;
+    let total = 78689;
     if (isOne(params)) {
-        sql.where({ 'c.id': params.id });
+        qry.where?.and({ 'id = ': params.id });
     } else {
         if (params.ids) {
-            sql.where($in('c.id', ...params.ids));
+            qry.where?.and('id in ', params.ids);
         } else {
-            sql = await prepareParams(params, sql);
+            if (processGetManyRefs(params, qry)) {
+                total = getSqlCount(qry);
+            }
+            processPaginationAndSort(params, qry);
         }
     }
 
-    const { text, values } = sql.toParams();
-    if (isOne(params)) {
-        const row = await db.get<ICompany>(text, values);
-        return {
-            data: stringIdsToArray(row!)
-        };
-    } else {
-        const rows = await db.all<ICompany[]>(text, values);
-        return {
-            data: stringIdsToArray(rows),
-            total
-        };
-    }
+    return qry.stream.pipe(createJsonStream(
+        isOne(params)
+            ? { prefix: '{ "data": ', postfix: '}' }
+            : {
+                prefix: '{ "data": [',
+                postfix: `] ${!params.ids ? `, "total": ${total} ` : ''}}`
+            }
+    ));
 }

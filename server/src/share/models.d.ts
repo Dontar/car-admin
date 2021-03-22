@@ -1,4 +1,4 @@
-export interface ICars {
+export interface ICar {
     id: number;
     rama: string;
     dkn: string;
@@ -50,7 +50,7 @@ export interface GetListParams {
         field: string;
         order: string;
     };
-    filter: any;
+    filter: Record<string, unknown>;
 }
 
 export interface GetListResult<T> {
@@ -81,7 +81,7 @@ export interface GetManyReferenceResult<T> {
     total: number;
     validUntil?: Date;
 }
-export interface UpdateParams<T = any> {
+export interface UpdateParams<T = unknown> {
     id: Identifier;
     data: T;
     previousData: RecordType;
@@ -90,7 +90,7 @@ export interface UpdateResult {
     data: RecordType;
     validUntil?: Date;
 }
-export interface UpdateManyParams<T = any> {
+export interface UpdateManyParams<T = unknown> {
     ids: Identifier[];
     data: T;
 }
@@ -98,7 +98,7 @@ export interface UpdateManyResult {
     data?: Identifier[];
     validUntil?: Date;
 }
-export interface CreateParams<T = any> {
+export interface CreateParams<T = unknown> {
     data: T;
 }
 export interface CreateResult {
