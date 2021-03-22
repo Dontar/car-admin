@@ -22,9 +22,9 @@ if (isMaster) {
     //     migrationsPath: join(__dirname, '..', 'migrations')
     // });
 
-    const cpu = cpus();
-    console.info(`CPU: ${cpu.length}. Starting ${cpu.length} processes...`);
-    for (let i = 0; i < cpu.length; i++) {
+    const cpuCount = Number(process.env.WORKERS ?? cpus().length);
+    console.info(`Starting ${cpuCount} workers...`);
+    for (let i = 0; i < cpuCount; i++) {
         fork();
     }
 
@@ -45,12 +45,12 @@ if (isMaster) {
 
     app.get('/companies', catchAsyncErrors(async (req, res) => {
         const data = getCompanies(req.query);
-        res.json(data);
+        data.pipe(res.type('application/json'));
     }));
 
     app.get('/people', catchAsyncErrors(async (req, res) => {
         const data = getPersons(req.query);
-        res.json(data);
+        data.pipe(res.type('application/json'));
     }));
 
     const port = Number(process.env.SERVER_PORT);
@@ -79,6 +79,6 @@ function cleanUpDatabase() {
 }
 
 function onExit(cb: (...args: unknown[]) => void) {
-    const exitEvents = [ 'exit', 'SIGHUP', 'SIGINT', 'SIGINT', 'SIGTERM' ];
+    const exitEvents = ['exit', 'SIGHUP', 'SIGINT', 'SIGINT', 'SIGTERM'];
     exitEvents.forEach(e => process.on(e, cb));
 }
