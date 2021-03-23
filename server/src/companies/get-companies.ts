@@ -1,6 +1,6 @@
 import { GetOneParams, GetParams } from '../share/models';
 import { getSqlCount, isOne, processGetManyRefs, processPaginationAndSort } from '../share/utils';
-import { createJsonStream } from '../share/JsonStream';
+import { createJsonStream } from '../share/json-stream';
 import { sql, where } from '../share/sql-tag';
 
 export function getCompanies(params: Partial<GetParams> | GetOneParams): NodeJS.ReadableStream {

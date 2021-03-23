@@ -3,12 +3,14 @@ import { AddressInfo } from 'net';
 import cors from 'cors';
 import morgan from 'morgan';
 import { config as envConfig } from 'dotenv';
-import { getCompanies } from './companies/companies';
-import { getPersons } from './people/people';
-import { getCars } from './cars/cars';
+import { getCompanies } from './companies/get-companies';
+import { getPeople } from './people/get-people';
+import { getCars } from './cars/get-cars';
 import { isMaster, fork, workers, worker } from 'cluster';
 import { cpus } from 'os';
 import { getDB } from './connection';
+import { migrate } from './share/sql-migrate';
+import { join } from 'node:path';
 
 envConfig();
 
@@ -16,17 +18,16 @@ if (isMaster) {
 
     onExit(cleanUpWorkers);
 
-    // const db = await getDB();
-    // console.info('Performing DB migrations...');
-    // await db.migrate({
-    //     migrationsPath: join(__dirname, '..', 'migrations')
-    // });
-
-    const cpuCount = Number(process.env.WORKERS ?? cpus().length);
-    console.info(`Starting ${cpuCount} workers...`);
-    for (let i = 0; i < cpuCount; i++) {
-        fork();
-    }
+    console.info('Performing DB migrations...');
+    migrate(getDB(), {
+        migrationsPath: join(__dirname, '../migrations')
+    }).then(() => {
+        const cpuCount = Number(process.env.WORKERS ?? cpus().length);
+        console.info(`Starting ${cpuCount} workers...`);
+        for (let i = 0; i < cpuCount; i++) {
+            fork();
+        }
+    }).catch(console.error);
 
 } else {
 
@@ -49,7 +50,7 @@ if (isMaster) {
     }));
 
     app.get('/people', catchAsyncErrors(async (req, res) => {
-        const data = getPersons(req.query);
+        const data = getPeople(req.query);
         data.pipe(res.type('application/json'));
     }));
 

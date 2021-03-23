@@ -1,10 +1,10 @@
 import { GetOneParams, GetParams, IPerson } from '../share/models';
 import { getSqlCount, isOne, processGetManyRefs, processPaginationAndSort } from '../share/utils';
-import { createSqlStream } from '../share/SqlStream';
-import { createJsonStream } from '../share/JsonStream';
+import { createSqlStream } from '../share/sql-stream';
+import { createJsonStream } from '../share/json-stream';
 import { sql, where } from '../share/sql-tag';
 
-export function getPersons(params: Partial<GetParams> | GetOneParams): NodeJS.ReadableStream {
+export function getPeople(params: Partial<GetParams> | GetOneParams): NodeJS.ReadableStream {
 
     const qry = sql/* sql */`
         select

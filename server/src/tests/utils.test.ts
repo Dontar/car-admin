@@ -1,6 +1,6 @@
 import { config } from 'dotenv';
 import { IPerson } from '../share/models';
-import { createSqlStream } from '../share/SqlStream';
+import { createSqlStream } from '../share/sql-stream';
 config();
 
 jest.setTimeout(5000 * 10);

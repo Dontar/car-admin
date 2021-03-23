@@ -1,4 +1,4 @@
-import { createSqlStream, SqlStream } from './SqlStream';
+import { createSqlStream, SqlStream } from './sql-stream';
 import { createHash } from 'crypto';
 import { insertSql } from './sql-tag-insert';
 

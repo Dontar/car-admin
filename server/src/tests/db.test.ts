@@ -1,7 +1,7 @@
 import { config as envConfig } from 'dotenv';
-import { getCars } from '../cars/cars';
-import { getCompanies } from '../companies/companies';
-import { getPersons } from '../people/people';
+import { getCars } from '../cars/get-cars';
+import { getCompanies } from '../companies/get-companies';
+import { getPeople } from '../people/get-people';
 import { streamToString } from './test-utils';
 
 envConfig();
@@ -38,7 +38,7 @@ const testsParams: TestFunctions = [
             sort: { field: 'id', order: 'ASC' }
         }]
     ]],
-    ['people', getPersons, [
+    ['people', getPeople, [
         ['with id', { id: 9219 }],
         ['with ids', { ids: [9219, 9451] }],
         ['with pagination', { pagination: { page: 1, perPage: 2 } }],
