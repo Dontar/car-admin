@@ -6,10 +6,10 @@ import { streamToString } from './test-utils';
 
 envConfig();
 
-type TestParams = [string, Parameters<typeof getCars>[0]];
-type TestFunctions = [string, typeof getCars, TestParams[]];
+type TestParams = Array<[string, Parameters<typeof getCars>[0]]>;
+type TestFunctions = Array<[string, typeof getCars, TestParams]>;
 
-describe.only.each([
+const testsParams: TestFunctions = [
     ['cars', getCars, [
         ['with id', { id: 4601 }],
         ['with ids', { ids: [4601, 4602] }],
@@ -22,7 +22,7 @@ describe.only.each([
             filter: { dkn: 'са' },
             pagination: { page: 1, perPage: 10 },
             sort: { field: 'id', order: 'ASC' }
-        }] as TestParams
+        }]
     ]],
     ['companies', getCompanies, [
         ['with id', { id: 9351 }],
@@ -32,11 +32,11 @@ describe.only.each([
             pagination: { page: 1, perPage: 2 },
             sort: { field: 'id', order: 'ASC' }
         }],
-        // ['with filter, pagination and sorting', {
-        //     filter: { dkn: 'са' },
-        //     pagination: { page: 1, perPage: 10 },
-        //     sort: { field: 'id', order: 'ASC' }
-        // }]
+        ['with filter, pagination and sorting', {
+            filter: { dkn: 'са' },
+            pagination: { page: 1, perPage: 10 },
+            sort: { field: 'id', order: 'ASC' }
+        }]
     ]],
     ['people', getPersons, [
         ['with id', { id: 9219 }],
@@ -47,10 +47,12 @@ describe.only.each([
             sort: { field: 'id', order: 'ASC' }
         }],
     ]]
-] as TestFunctions[])('Test %s data retrieval', (_label, dbFunc, params) => {
+];
 
-    it.each(params)(`should get ${_label} from db %s`, async (_test, testParams) => {
-        const data = dbFunc(testParams);
+describe.only.each(testsParams)('Test %s data retrieval', (_label, dbFunc, testParams) => {
+
+    it.each(testParams)(`should get ${_label} from db %s`, async (_test, params) => {
+        const data = dbFunc(params);
         expect(data).toBeDefined();
         const jsonPreview = await streamToString(data);
         const dataPreview = JSON.parse(jsonPreview);
