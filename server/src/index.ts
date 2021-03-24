@@ -2,52 +2,85 @@ import express, { RequestHandler } from 'express';
 import { AddressInfo } from 'net';
 import cors from 'cors';
 import morgan from 'morgan';
-import { config } from 'dotenv';
-import { getCompanies } from "./companies/companies";
-import { getPersons } from "./people/people";
-import { getCars } from "./cars/cars";
+import { config as envConfig } from 'dotenv';
+import { getCompanies } from './companies/get-companies';
+import { getPeople } from './people/get-people';
+import { getCars } from './cars/get-cars';
+import { isMaster, fork, workers, worker } from 'cluster';
+import { cpus } from 'os';
 import { getDB } from './connection';
 import { join } from 'path';
 
-config();
-const app = express();
+envConfig();
 
-app.use(cors({
-    origin: process.env.CORS_ORIGIN
-})).use(morgan('common'));
+if (isMaster) {
+
+    onExit(cleanUpWorkers);
+
+    console.info('Performing DB migrations...');
+    getDB().migrate({
+        migrationsPath: join(__dirname, '../migrations')
+    }).then(() => {
+        const cpuCount = Number(process.env.WORKERS ?? cpus().length);
+        console.info(`Starting ${cpuCount} workers...`);
+        for (let i = 0; i < cpuCount; i++) {
+            fork();
+        }
+    }).catch(console.error);
+
+} else {
+
+    onExit(cleanUpDatabase);
+
+    const app = express();
+
+    app.use(cors({
+        origin: process.env.CORS_ORIGIN
+    }));
+
+    app.use(morgan('common'));
+
+    app.get('/cars', catchAsyncErrors(async (req, res) => {
+        const data = getCars(req.query);
+        data.pipe(res.type('application/json'));
+    }));
+
+    app.get('/companies', catchAsyncErrors(async (req, res) => {
+        const data = getCompanies(req.query);
+        data.pipe(res.type('application/json'));
+    }));
+
+    app.get('/people', catchAsyncErrors(async (req, res) => {
+        const data = getPeople(req.query);
+        data.pipe(res.type('application/json'));
+    }));
+
+    const port = Number(process.env.SERVER_PORT);
+    const host = process.env.SERVER_HOST ?? 'localhost';
+
+    const server = app.listen(port, host, () => {
+        const { address, port } = server.address() as AddressInfo;
+        console.info(`${worker.id} Listening on ${address}:${port}`);
+    });
+}
 
 function catchAsyncErrors(handler: (...params: Parameters<RequestHandler>) => Promise<void>): RequestHandler {
     return function (req, res, next) {
         handler(req, res, next).catch(next);
+    };
+}
+
+function cleanUpWorkers() {
+    for (const [, worker] of Object.entries(workers)) {
+        worker?.kill();
     }
 }
 
-app.get('/cars', catchAsyncErrors(async (req, res) => {
-    const data = await getCars(req.query);
-    res.json(data);
-}));
+function cleanUpDatabase() {
+    getDB().close();
+}
 
-app.get('/companies', catchAsyncErrors(async (req, res) => {
-    const data = await getCompanies(req.query);
-    res.json(data);
-}));
-
-app.get('/people', catchAsyncErrors(async (req, res) => {
-    const data = await getPersons(req.query);
-    res.json(data);
-}));
-
-const port: number = Number(process.env.SERVER_PORT);
-const host: string = process.env.SERVER_HOST!;
-
-(async () => {
-    const db = await getDB();
-    await db.migrate({
-        migrationsPath: join(__dirname, '..', 'migrations')
-    });
-
-    const server = app.listen(port, host, () => {
-        const { address, port } = server.address() as AddressInfo;
-        console.info(`Listening on ${address}:${port}`);
-    });
-})().catch(console.error);
+function onExit(cb: (...args: unknown[]) => void) {
+    const exitEvents = ['exit', 'SIGHUP', 'SIGINT', 'SIGINT', 'SIGTERM'];
+    exitEvents.forEach(e => process.on(e, cb));
+}

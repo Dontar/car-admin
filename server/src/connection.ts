@@ -1,18 +1,21 @@
-import { Database as SQ3Database, Statement as SQ3Statement } from 'sqlite3';
-import { Database, open } from 'sqlite';
+import Database from 'better-sqlite3';
+import { migrate } from './share/models';
+import { migrate as sqlMigrate} from './share/sql-migrate';
 
-export type Connection = Database<SQ3Database, SQ3Statement>;
-
-export function getDB(): Promise<Connection> {
-    if (!getDB.db) {
-        getDB.db = open({
-            filename: process.env.DB_PATH!,
-            driver: SQ3Database
-        });
+export class MyDatabase extends Database {
+    migrate(config: migrate.MigrationParams = {}): Promise<void> {
+        return sqlMigrate(this, config);
     }
-    return getDB.db;
 }
 
-export namespace getDB {
-    export let db: Promise<Connection> | undefined = undefined;
+export function getDB(): MyDatabase {
+    if (!db) {
+        db = new MyDatabase(process.env.DB_PATH ?? ':memory:', {
+            verbose: process.env.DEBUG ? console.log : undefined
+        });
+        db.pragma('journal_mode=WAL');
+    }
+    return db as MyDatabase;
 }
+
+let db: MyDatabase | undefined = undefined;

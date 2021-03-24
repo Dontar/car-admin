@@ -1,4 +1,4 @@
-export interface ICars {
+export interface ICar {
     id: number;
     rama: string;
     dkn: string;
@@ -50,7 +50,7 @@ export interface GetListParams {
         field: string;
         order: string;
     };
-    filter: any;
+    filter: Record<string, unknown>;
 }
 
 export interface GetListResult<T> {
@@ -72,7 +72,7 @@ export interface GetManyResult<T> {
     data: (RecordType & T)[];
     validUntil?: Date;
 }
-export interface GetManyReferenceParams extends GetListParams{
+export interface GetManyReferenceParams extends GetListParams {
     target: string;
     id: Identifier;
 }
@@ -81,7 +81,7 @@ export interface GetManyReferenceResult<T> {
     total: number;
     validUntil?: Date;
 }
-export interface UpdateParams<T = any> {
+export interface UpdateParams<T = unknown> {
     id: Identifier;
     data: T;
     previousData: RecordType;
@@ -90,7 +90,7 @@ export interface UpdateResult {
     data: RecordType;
     validUntil?: Date;
 }
-export interface UpdateManyParams<T = any> {
+export interface UpdateManyParams<T = unknown> {
     ids: Identifier[];
     data: T;
 }
@@ -98,7 +98,7 @@ export interface UpdateManyResult {
     data?: Identifier[];
     validUntil?: Date;
 }
-export interface CreateParams<T = any> {
+export interface CreateParams<T = unknown> {
     data: T;
 }
 export interface CreateResult {
@@ -117,4 +117,29 @@ export interface DeleteManyParams {
 }
 export interface DeleteManyResult {
     data?: Identifier[];
+}
+
+export namespace migrate {
+    export interface MigrationParams {
+        /**
+         * Migrations table name. Default is 'migrations'
+         */
+        table?: string
+        /**
+         * Path to the migrations folder. Default is `path.join(process.cwd(), 'migrations')`
+         */
+        migrationsPath?: string
+        /**
+         * Migration data read from migrations folder. `migrationsPath` will be ignored if this is
+         * provided.
+         */
+        migrations?: readonly MigrationFile[]
+    }
+
+    export interface MigrationFile {
+        id: number
+        name: string
+        filename: string
+    }
+
 }
