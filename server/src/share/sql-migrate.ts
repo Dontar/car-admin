@@ -1,17 +1,16 @@
-import { readdir, readFile,  } from 'fs/promises';
-import * as path from 'path';
+import { readdir, readFile, } from 'fs/promises';
 import { MyDatabase } from '../connection';
 import { migrate } from './models';
 import { async as Zip } from 'node-stream-zip';
 import { streamToString } from '../tests/test-utils';
-import { join } from 'path';
+import { join, resolve } from 'path';
 
 type MigrationFile = migrate.MigrationFile
 type MigrationParams = migrate.MigrationParams
 
 export async function readMigrations(migrationPath?: string): Promise<Array<MigrationFile>> {
-    const migrationsPath = migrationPath || path.join(process.cwd(), 'migrations');
-    const location = path.resolve(migrationsPath);
+    const migrationsPath = migrationPath || join(process.cwd(), 'migrations');
+    const location = resolve(migrationsPath);
 
     return (await readdir(location)).reduce((a, file) => {
         const [filename, id, name] = file.match(/^(\d+).(.*?)\.sql|zip$/) ?? [];
@@ -42,15 +41,10 @@ export async function migrate(db: MyDatabase, config: MigrationParams = {}): Pro
         )
     `).run();
 
-    // Get the list of already applied migrations
-    const dbMigrations: MigrationFile[] = db.prepare(
-        `SELECT id, name, filename FROM "${table}" ORDER BY id ASC`
-    ).all();
-
     const insertMigration = db.prepare(`INSERT INTO "${table}" (id, name, filename) VALUES (?, ?, ?)`);
     const addMigration = db.transaction(async (migration: MigrationFile) => {
         if (migration.filename.slice(-3) == 'zip') {
-            const zip = new Zip({file: migration.filename});
+            const zip = new Zip({ file: migration.filename });
             for (const [, entry] of Object.entries(await zip.entries(''))) {
                 if (entry.name.slice(-3) == 'sql') {
                     const content = await streamToString(await zip.stream(entry.name));
@@ -68,10 +62,12 @@ export async function migrate(db: MyDatabase, config: MigrationParams = {}): Pro
         );
     });
 
+    // Get the list of already applied migrations
+    const lastMigrationId: number = db.prepare(
+        `SELECT id FROM "${table}" ORDER BY id DESC`
+    ).pluck().get();
+
     // Apply pending migrations
-    const lastMigrationId = dbMigrations.length
-        ? dbMigrations[dbMigrations.length - 1].id
-        : 0;
     for (const migration of migrations) {
         if (migration.id > lastMigrationId) {
             await addMigration(migration);
