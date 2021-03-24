@@ -9,8 +9,7 @@ import { getCars } from './cars/get-cars';
 import { isMaster, fork, workers, worker } from 'cluster';
 import { cpus } from 'os';
 import { getDB } from './connection';
-import { migrate } from './share/sql-migrate';
-import { join } from 'node:path';
+import { join } from 'path';
 
 envConfig();
 
@@ -19,7 +18,7 @@ if (isMaster) {
     onExit(cleanUpWorkers);
 
     console.info('Performing DB migrations...');
-    migrate(getDB(), {
+    getDB().migrate({
         migrationsPath: join(__dirname, '../migrations')
     }).then(() => {
         const cpuCount = Number(process.env.WORKERS ?? cpus().length);
@@ -37,7 +36,9 @@ if (isMaster) {
 
     app.use(cors({
         origin: process.env.CORS_ORIGIN
-    })).use(morgan('common'));
+    }));
+
+    app.use(morgan('common'));
 
     app.get('/cars', catchAsyncErrors(async (req, res) => {
         const data = getCars(req.query);

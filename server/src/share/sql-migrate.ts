@@ -55,13 +55,13 @@ export async function migrate(db: MyDatabase, config: MigrationParams = {}): Pro
         CREATE TABLE IF NOT EXISTS "${table}" (
             id   INTEGER PRIMARY KEY,
             name TEXT    NOT NULL,
-            up   TEXT    NOT NULL,
-            down TEXT    NOT NULL
+            up   BLOB    NOT NULL,
+            down BLOB    NOT NULL
         )
     `).run();
 
     // Get the list of already applied migrations
-    let dbMigrations = db.prepare(
+    let dbMigrations: migrate.MigrationData[] = db.prepare(
         `SELECT id, name, up, down FROM "${table}" ORDER BY id ASC`
     ).all();
 
@@ -76,15 +76,23 @@ export async function migrate(db: MyDatabase, config: MigrationParams = {}): Pro
     // also undo the last migration if the `force` option is enabled.
     const lastMigration = migrations[migrations.length - 1];
     for (const migration of dbMigrations.slice().reverse()) {
-        if (
-            !migrations.some(x => x.id === migration.id) ||
-            (force && migration.id === lastMigration.id)
-        ) {
+        if (existsOnlyInDb(migration)) {
             undoMigration(migration);
         } else {
             break;
         }
     }
+
+    const insertMigration = db.prepare(`INSERT INTO "${table}" (id, name, up, down) VALUES (?, ?, ?, ?)`);
+    const addMigration = db.transaction((migration: migrate.MigrationData) => {
+        db.exec(migration.up);
+        insertMigration.run(
+            migration.id,
+            migration.name,
+            migration.up,
+            migration.down
+        );
+    });
 
     // Apply pending migrations
     const lastMigrationId = dbMigrations.length
@@ -92,16 +100,12 @@ export async function migrate(db: MyDatabase, config: MigrationParams = {}): Pro
         : 0;
     for (const migration of migrations) {
         if (migration.id > lastMigrationId) {
-            db.transaction(() => {
-                db.exec(migration.up);
-                db.prepare(`INSERT INTO "${table}" (id, name, up, down) VALUES (?, ?, ?, ?)`).run(
-                    migration.id,
-                    migration.name,
-                    migration.up,
-                    migration.down
-                );
-
-            })();
+            addMigration(migration);
         }
+    }
+
+    function existsOnlyInDb(migration: migrate.MigrationData) {
+        return !migrations.some(x => x.id === migration.id) ||
+            (force && migration.id === lastMigration.id);
     }
 }
