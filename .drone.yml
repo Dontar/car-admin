@@ -42,6 +42,7 @@ steps:
       dockerfile: ci/Dockerfile
       context: client/
       insecure: true
+      registry: registry.local
 ---
 kind: pipeline
 type: kubernetes
