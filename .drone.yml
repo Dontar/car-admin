@@ -37,8 +37,8 @@ steps:
         from_secret: registry_user
       password:
         from_secret: registry_pass
-      repo: registry.local
-      tags: test.build
+      repo: registry.local/car-admin-frontend
+      tags: latest
       dockerfile: client/ci/Dockerfile
       context: client/
       insecure: true
