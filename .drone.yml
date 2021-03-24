@@ -39,7 +39,7 @@ steps:
         from_secret: registry_pass
       repo: registry.local
       tags: test.build
-      dockerfile: ci/Dockerfile
+      dockerfile: client/ci/Dockerfile
       context: client/
       insecure: true
       registry: registry.local
