@@ -7,12 +7,13 @@
         "lint": "eslint",
         "test": "jest",
         "build": "tsc -p tsconfig.build.json",
-        "start": "npm run build && node dist/index.js"
+        "start": "npm run build && node dist/index.js",
+        "postinstall": "[ ! -d node_modules/better-sqlite3 ] && ln -s better-sqlite3-with-prebuilds node_modules/better-sqlite3"
     },
     "author": "",
     "license": "ISC",
     "dependencies": {
-        "better-sqlite3": "^7.1.2",
+        "better-sqlite3-with-prebuilds": "^7.1.7",
         "cors": "^2.8.5",
         "dotenv": "^8.2.0",
         "express": "^4.17.1",

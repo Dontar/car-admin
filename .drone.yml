@@ -7,7 +7,7 @@ trigger:
     - master
 
 steps:
-  # Build the frontend
+  # Build frontend
   - name: frontend_build
     image: node:lts-alpine
     commands:
@@ -15,22 +15,8 @@ steps:
       - npm install
       - npm run build
 
-  # Build docker image for the frontend
-  # - name: frontend_build_docker
-  #   image: alpinelinux/docker-cli:latest
-  #   environment:
-  #     DOCKER_HOST:
-  #       from_secret: docker_host
-  #     REGISTRY_USER:
-  #       from_secret: registry_user
-  #     REGISTRY_PASS:
-  #       from_secret: registry_pass
-  #   commands:
-  #     - cd client
-  #     - docker build -t registry.local/car-admin-frontend:latest -f ci/Dockerfile .
-  #     - echo "$REGISTRY_PASS" | docker login -u $REGISTRY_USER --password-stdin registry.local
-  #     - docker push registry.local/car-admin-frontend:latest
-  - name: frontend_build_docker_plugin
+  # Build frontend docker image
+  - name: frontend_build_docker
     image: plugins/docker
     settings:
       username:
@@ -63,17 +49,16 @@ steps:
       - npm install --production
 
   # Build backend docker image
-  - name: backend_build_docker
-    image: alpinelinux/docker-cli:latest
-    environment:
-      DOCKER_HOST:
-        from_secret: docker_host
-      REGISTRY_USER:
+  - name: frontend_build_docker
+    image: plugins/docker
+    settings:
+      username:
         from_secret: registry_user
-      REGISTRY_PASS:
+      password:
         from_secret: registry_pass
-    commands:
-      - cd server
-      - docker build -t registry.local/car-admin-backend:latest -f ci/Dockerfile .
-      - echo "$REGISTRY_PASS" | docker login -u $REGISTRY_USER --password-stdin registry.local
-      - docker push registry.local/car-admin-backend:latest
+      repo: registry.local/car-admin-backend
+      tags: latest
+      dockerfile: server/ci/Dockerfile
+      context: server/
+      insecure: true
+      registry: registry.local
