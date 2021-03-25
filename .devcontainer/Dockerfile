@@ -25,15 +25,27 @@ ARG USE_MOBY="true"
 ARG USERNAME=node
 ARG USER_UID=1000
 ARG USER_GID=$USER_UID
+
+ENV SYNC_LOCALHOST_KUBECONFIG="true"
+
+ADD https://raw.githubusercontent.com/microsoft/vscode-dev-containers/master/script-library/kubectl-helm-debian.sh /tmp/library-scripts/
+ADD https://raw.githubusercontent.com/microsoft/vscode-dev-containers/master/containers/kubernetes-helm/.devcontainer/copy-kube-config.sh /usr/local/share/
+
+
 COPY library-scripts/*.sh /tmp/library-scripts/
 RUN apt-get update \
     # Use Docker script from script library to set things up
     && /bin/bash /tmp/library-scripts/docker-debian.sh "${ENABLE_NONROOT_DOCKER}" "/var/run/docker-host.sock" "/var/run/docker.sock" "${USERNAME}" "${USE_MOBY}" \
+    # Use
+    && /bin/bash /tmp/lib-scripts/kubectl-helm-debian.sh \
     # Install Drone CLI
     && curl -L https://github.com/drone/drone-cli/releases/latest/download/drone_linux_amd64.tar.gz | tar zx \
     && install -t /usr/local/bin drone \
     # Clean up
     && apt-get autoremove -y && apt-get clean -y && rm -rf /var/lib/apt/lists/* /tmp/library-scripts/
+
+RUN chown ${USERNAME}:root /usr/local/share/copy-kube-config.sh \
+    && echo "source /usr/local/share/copy-kube-config.sh" | tee -a /root/.bashrc /root/.zshrc /home/${USERNAME}/.bashrc >> /home/${USERNAME}/.zshrc
 
 # Setting the ENTRYPOINT to docker-init.sh will configure non-root access to 
 # the Docker socket if "overrideCommand": false is set in devcontainer.json. 
