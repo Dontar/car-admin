@@ -37,7 +37,7 @@ RUN apt-get update \
     # Use Docker script from script library to set things up
     && /bin/bash /tmp/library-scripts/docker-debian.sh "${ENABLE_NONROOT_DOCKER}" "/var/run/docker-host.sock" "/var/run/docker.sock" "${USERNAME}" "${USE_MOBY}" \
     # Use
-    && /bin/bash /tmp/lib-scripts/kubectl-helm-debian.sh \
+    && /bin/bash /tmp/library-scripts/kubectl-helm-debian.sh \
     # Install Drone CLI
     && curl -L https://github.com/drone/drone-cli/releases/latest/download/drone_linux_amd64.tar.gz | tar zx \
     && install -t /usr/local/bin drone \
