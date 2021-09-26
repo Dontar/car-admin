@@ -11,9 +11,9 @@ function request(url: URL) {
 
         if (params.ids && params.ids.length > 10) {
             let completeData = { data: [] };
-            const ids = partition(params.ids, 10);
-            for (const idSet of ids) {
-                url.search = stringify({ ...params, ids: idSet });
+            const idSets = partition(params.ids, 10);
+            for (const ids of idSets) {
+                url.search = stringify({ ids });
                 const data = await fetch(url.toString()).then(res => res.json());
                 completeData.data.concat(data.data);
             }
